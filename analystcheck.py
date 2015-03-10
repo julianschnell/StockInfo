@@ -70,7 +70,7 @@ def GetAnalysis (q): ## q ist ein Tuple in der Form ('NamederAktie', 'ISIN')
 
 
 ''' LOADING DATABASE news '''
-db = sqlite3.connect('/data.db')
+db = sqlite3.connect('/home/strongbo/NEWPROJECT/data.db')
 db.text_factory = str
 cursor = db.cursor()
 cursor.execute('''
@@ -83,7 +83,7 @@ while True:
     s = raw_input('Aktie suchen: ')
     Aktie = GetISIN(s)
     if Aktie != 1:
-        break
+        break    
 
 Liste = GetAnalysis(Aktie)
 print Liste
