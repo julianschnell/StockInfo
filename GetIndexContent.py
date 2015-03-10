@@ -3,7 +3,7 @@
 
 import lxml.html, requests, sqlite3, datetime
 
-db = sqlite3.connect('/home/strongbo/NEWPROJECT/data.db')
+db = sqlite3.connect('data.db')
 db.text_factory = str
 cursor = db.cursor()
 cursor.execute('''CREATE TABLE IF NOT EXISTS indices(stockindex TEXT, company TEXT, isin CHAR(12), DateAdded CHAR(10))''')
@@ -34,9 +34,9 @@ for item in indices:
     db.commit()
 
 db.close()
-print "Es wurden "+str(count)+" Einträge ausgelesen und in der Datenbank gespeichert!"
+print str(count)+" entries have been parsed and added to the database!"
 
 
-'''   FUNKTIONEN DIE NOCH HINZUGEFÜGT WERDEN MÜSSEN   '''
-'''   - Überprüfen, ob Eintrag schon vorhanden ist, wenn nicht -> HINZUFÜGEN!   '''
-'''   - Überprüfen, ob Eintrag noch Teil des Index ist, wenn nicht -> ENTFERNEN '''
+'''   FUNCTIONS TO ADD   '''
+'''   - Check, if entry is already in db, if not -> Add!   '''
+'''   - Check, if entry is still part of the stock index, if not -> Delete! '''

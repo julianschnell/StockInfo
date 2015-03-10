@@ -14,25 +14,25 @@ def GetISIN (str):
             dict[i] = item["NAME"].encode('utf-8'), item["ISIN"].encode('utf-8')
             print i, item["ISIN"], item["NAME"]
     else:
-        print "Zu diesem Suchbegriff existieren keine Einträge!"
+        print "No entries found to this query!"
         return 1
 
-    s1 = raw_input('Bitte die gesuchte Aktie auswählen: ')
+    s1 = raw_input('Please select a stock: ')
     while True:
         try:
             if int(s1) in dict:
                 break
             else:
-                s1 = raw_input('Falsche Eingabe! Bitte wiederholen: ')
+                s1 = raw_input('Wrong query! Please repeat: ')
         except ValueError:
-            s1 = raw_input('Falsche Eingabe! Bitte wiederholen: ')
-    return dict[int(s1)] ##gibt Tuple zurück mit zwei Einträgen: ('NamederAktie', 'ISIN')
+            s1 = raw_input('Wrong query! Please repeat: ')
+    return dict[int(s1)] ##returns tuple with two values: ('NameofStock', 'ISIN')
 
-def GetAnalysis (q): ## q ist ein Tuple in der Form ('NamederAktie', 'ISIN')
-    count = 0 ##Zähler
+def GetAnalysis (q): ## q is a tuple like ('NameofStock', 'ISIN')
+    count = 0 ##counter
     a = 1
-    page = 3 ##3 ist hier willkürlich gewählt! Hauptsache die Zahl ist größer als a!
-    cursor.execute("SELECT * FROM news WHERE isin=? ORDER BY date desc", (q[1],)) ##LADE DEN AKTUELLSTEN EINTRAG AUS DER DATENBANK!
+    page = 3 ##page can actually be any value higher than a!
+    cursor.execute("SELECT * FROM news WHERE isin=? ORDER BY date desc", (q[1],)) ##load most current entry from database!
     currententry = cursor.fetchone()
     while a < page+1:
         link = 'http://www.onvista.de/news/alle-news?assetId='+str(q[1])+'&assetType=Stock&searchTerm=&dateRange=&orderBy=datetime&newsType%5B%5D=analysis&page='+str(a)
@@ -42,9 +42,9 @@ def GetAnalysis (q): ## q ist ein Tuple in der Form ('NamederAktie', 'ISIN')
         if a == 1:
             page = website
             try:
-                page = len(a_news[0][-1][1])-1 ##Anzahl der News-Seiten!
+                page = len(a_news[0][-1][1])-1 ##number of webpages to scrape!
             except IndexError:
-                print "Leider keine Analystenmeinungen vorhanden!"
+                print "Unfortunately there is no analysis for this stock!"
                 break
             print page
         newsbox = tree.find_class("NEWS_TEASERBOX ARTIKEL")
@@ -58,19 +58,19 @@ def GetAnalysis (q): ## q ist ein Tuple in der Form ('NamederAktie', 'ISIN')
                 teaser = x[2][0].text.encode('utf-8')
             except IndexError:
                 continue
-            if currententry == (q[0], q[1], date, trend, title, teaser, link, analyst): ##hier wird gecheckt, ob die geladene Nachricht mit der aktuellsten in der Datenbank identisch ist! wenn ja -> Funktion beenden!
+            if currententry == (q[0], q[1], date, trend, title, teaser, link, analyst): ##check whether scraped content is identical with most current content in database! if this is the case -> exit!
                 return "Es wurden "+str(count)+" neue Einträge angelegt!"
             cursor.execute('''INSERT INTO news(name, isin, date, trend, title, teaser, link, analyst) VALUES (?,?,?,?,?,?,?,?) ''', (q[0], q[1], date, trend, title, teaser, link, analyst))
             count += 1
         print
         a += 1
         db.commit()
-    return "Es wurden "+str(count)+" Einträge angelegt!"
+    return str(count)+" entries added!"
 
 
 
 ''' LOADING DATABASE news '''
-db = sqlite3.connect('/home/strongbo/NEWPROJECT/data.db')
+db = sqlite3.connect('data.db')
 db.text_factory = str
 cursor = db.cursor()
 cursor.execute('''
@@ -78,12 +78,12 @@ cursor.execute('''
 ''')
 db.commit()
 
-''' STARTE DATEN-ABFRAGE '''
+''' START DB-QUERY '''
 while True:
-    s = raw_input('Aktie suchen: ')
+    s = raw_input('Search stock: ')
     Aktie = GetISIN(s)
     if Aktie != 1:
-        break    
+        break
 
 Liste = GetAnalysis(Aktie)
 print Liste
