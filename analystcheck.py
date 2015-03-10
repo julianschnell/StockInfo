@@ -14,7 +14,7 @@ def GetISIN (str):
             dict[i] = item["NAME"].encode('utf-8'), item["ISIN"].encode('utf-8')
             print i, item["ISIN"], item["NAME"]
     else:
-        print "No entries found to this query!"
+        print "No entries found for this query!"
         return 1
 
     s1 = raw_input('Please select a stock: ')
@@ -29,7 +29,7 @@ def GetISIN (str):
     return dict[int(s1)] ##returns tuple with two values: ('NameofStock', 'ISIN')
 
 def GetAnalysis (q): ## q is a tuple like ('NameofStock', 'ISIN')
-    count = 0 ##counter
+    count = 0
     a = 1
     page = 3 ##page can actually be any value higher than a!
     cursor.execute("SELECT * FROM news WHERE isin=? ORDER BY date desc", (q[1],)) ##load most current entry from database!
